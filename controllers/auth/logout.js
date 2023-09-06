@@ -1,6 +1,7 @@
+const colors = require('colors');
+
 const logout = async (req, res) => {
-    const emailId = req.body.email;
-    const password = req.body.password;
+    console.log("[LOGOUT] User logged out".green);
     /** Clearing out cookies, in the user's end */
     res
         .clearCookie('accessToken', { httpOnly: true, sameSite: "strict", secure: false })

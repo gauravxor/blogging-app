@@ -3,6 +3,7 @@ const cookieParser 	= require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const colors = require('colors');
 
 const dbUtils = require("./utils/dbUtils");
 
@@ -38,5 +39,5 @@ app.use('/blog/', crudRoute);
 
 /** Starting the server */
 app.listen(process.env.PORT, () => {
-    console.log("Server started at port 4000");
+    console.log(`[INDEX] Server started on port ${process.env.PORT}`.yellow);
 });

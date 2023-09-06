@@ -1,3 +1,4 @@
+const colors = require("colors");
 const sqlite3 = require("sqlite3");
 const fs = require("fs");
 const path = require("path");
@@ -6,30 +7,28 @@ const databasePath = __dirname + "/../db.sqlite3";
 /** To create the database file if it doesn't exist */
 const createDatabaseFileIfNeeded = () => {
     if (!fs.existsSync(databasePath)) {
-        console.log("Database file not found. Creating a new one...");
+        console.log("[DB-UTIL] Creating new DB file".yellow);
         try {
             fs.writeFileSync(databasePath, "");
-            console.log("Database file created.");
+            console.log("[DB-UTIL] Database created".yellow);
         }
         catch (err) {
-            console.error("Error creating the database file:", err.message);
+            console.log("[DB-UTIL] Error creating Database ".red);
         }
     }
     else {
-        console.log("Database file found.");
+        console.log("[DB-UTIL] Database Found".yellow);
     }
 }
-
 
 /** To get the database connection object */
 const getDBConnection = () => {
     createDatabaseFileIfNeeded();
     const db = new sqlite3.Database(databasePath, (error) => {
         if (error) {
-            console.log("Error connecting to the database.");
+            console.log("[DB-UTIL] Error connecting to Database".red);
             return console.error(error.message);
         }
-        console.log("Connected to the database.");
     });
     return db;
 }
@@ -38,6 +37,7 @@ const getDBConnection = () => {
 /** To initialize the database with the necessary tables. Runs once, during server startup */
 const initDB = () => {
     const db = getDBConnection();
+
     /** Query to create necessary tables */
     const initQuery = `
         CREATE TABLE IF NOT EXISTS users (
@@ -47,19 +47,20 @@ const initDB = () => {
         );
 
         CREATE TABLE IF NOT EXISTS blogs (
-            creater_id INTEGER NOT NULL REFERENCES users(id),
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            creator_id INTEGER NOT NULL REFERENCES users(id),
             title VARCHAR(50) NOT NULL,
-            content VARCHAR(5000),
+            content VARCHAR(5000) NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )`;
 
     /** Executing the query to create the tables */
     db.exec(initQuery, (error) => {
         if (error) {
-            console.log(error.message);
+            console.log("[DB-UTIL] Error initializing Database".red);
         }
         else {
-            console.log("Database initialized!");
+            console.log("[DB-UTIL] Initialized the Database".yellow);
         }
     });
 }

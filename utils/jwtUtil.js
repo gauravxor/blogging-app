@@ -1,3 +1,4 @@
+const color = require("colors");
 const jwt = require("jsonwebtoken");
 
 /**
@@ -59,7 +60,8 @@ function validateRefreshToken(refreshToken) {
 
 /* Function to validate both Access and Refresh Token */
 async function validateTokens(req, res, next) {
-    if (JSON.stringify(req.cookies) === '{}') {
+    if ( JSON.stringify(req.cookies) === '{}'){
+        console.log("[VALIDATOR] No cookies found".red);
         return res.status(401).send({
             message: "Unauthorized access"
         });
@@ -71,31 +73,33 @@ async function validateTokens(req, res, next) {
     /** Check if access token is valid */
     const accessPayload = validateAccessToken(accessToken);
     if (accessPayload) {
+        console.log("[VALIDATOR] Access token is valid".yellow);
         req.userId = accessPayload.userId;
         req.userEmail = accessPayload.userEmail;
         return next();
     }
-    console.log("Invalid access token, checking for refresh token");
+    console.log("[VALIDATOR] Access token expired".yellow);
 
     /** Check if refresh token is valid */
     const refreshPayload = validateRefreshToken(refreshToken);
     if (refreshPayload) {
         req.userId = refreshPayload.userId;
         req.userEmail = refreshPayload.userEmail;
-
+        console.log("[VALIDATOR] Refresh token is valid".yellow);
         const newAccessToken = generateAccessToken(refreshPayload.userId, refreshPayload.userEmail);
         const newRefreshToken = generateRefreshToken(refreshPayload.userId, refreshPayload.userEmail);
         /** Send out brand new tokens */
-        res.cookie('accessToken', newAccessToken, { httpOnly: true, sameSite: "strict", secure: false });
-        res.cookie('refreshToken', newRefreshToken, { httpOnly: true, sameSite: "strict", secure: false });
-
+        res
+            .cookie('accessToken', newAccessToken, { httpOnly: true, sameSite: "strict", secure: false })
+            .cookie('refreshToken', newRefreshToken, { httpOnly: true, sameSite: "strict", secure: false });
         return next();
     }
-    console.log("Invalid token! Please login again");
+    console.log("[VALIDATOR] All Tokens expired".red);
 
     /** Clear out any expired/leftout tokens */
-    res.clearCookie('accessToken', { httpOnly: true, sameSite: "strict", secure: false })
-    res.clearCookie('refreshToken', { httpOnly: true, sameSite: "strict", secure: false })
+    res
+        .clearCookie('accessToken', { httpOnly: true, sameSite: "strict", secure: false })
+        .clearCookie('refreshToken', { httpOnly: true, sameSite: "strict", secure: false });
 
     return res.status(401).send({
         message: "You must be logged in peform this action"

@@ -11,12 +11,13 @@ const remove = require("../controllers/crud/delete");  // delete is a reserved w
 crudRoutes.post('/create/', jwtUtil.validateTokens, create);
 
 /** Handle requests to fetch blog posts */
-crudRoutes.get('/read/', jwtUtil.validateTokens, read);
+crudRoutes.get('/read/:id', jwtUtil.validateTokens, read);
 
 /** Handle requests to update blog posts */
-crudRoutes.put('/update/', jwtUtil.validateTokens, update);
+crudRoutes.put('/update/:id', jwtUtil.validateTokens, update);
 
 /** Handle requests to delete blog posts */
-crudRoutes.delete('/delete/', jwtUtil.validateTokens, remove);
+
+crudRoutes.delete('/delete/:id', jwtUtil.validateTokens, remove);
 
 module.exports = crudRoutes;
